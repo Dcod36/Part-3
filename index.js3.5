@@ -1,0 +1,52 @@
+const express = require('express');
+const app = express();
+
+app.use(express.json()); // Middleware to parse JSON request bodies
+
+// Hardcoded initial persons data
+let persons = [
+    { id: "1", name: "Arto Hellas", number: "040-123456" },
+    { id: "2", name: "Ada Lovelace", number: "39-44-5323523" },
+    { id: "3", name: "Dan Abramov", number: "12-43-234345" },
+    { id: "4", name: "Mary Poppendieck", number: "39-23-6423122" }
+];
+
+// ✅ GET route for fetching all persons
+app.get('/api/persons', (req, res) => {
+    console.log("GET request received, sending persons data.");
+    res.json(persons);
+});
+
+// Function to generate a random ID
+const generateId = () => {
+    return Math.floor(Math.random() * 1000000).toString();
+};
+
+// ✅ POST route for adding a new person
+app.post('/api/persons', (req, res) => {
+    const { name, number } = req.body;
+
+    if (!name || !number) {
+        return res.status(400).json({ error: "Name and number are required" });
+    }
+
+    if (persons.some(person => person.name === name)) {
+        return res.status(400).json({ error: "Name must be unique" });
+    }
+
+    const newPerson = {
+        id: generateId(),
+        name,
+        number
+    };
+
+    persons.push(newPerson);
+    console.log("Updated persons list:", persons);
+    res.status(201).json(newPerson);
+});
+
+// Start the server
+const PORT = 3001;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
